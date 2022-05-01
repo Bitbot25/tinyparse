@@ -1,0 +1,14 @@
+[package]
+name = "tinyparse"
+version = "0.1.0"
+edition = "2021"
+description = "A tiny combinator parser library."
+authors = ["Verified"]
+license = "GPL-2.0"
+keywords = ["combinator", "parser", "tiny", "simple"]
+repository = "https://github.com/Bitbot25/tinyparse"
+documentation = "https://docs.rs/tinyparse/0.1.0/tinyparse/"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
