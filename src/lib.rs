@@ -170,12 +170,12 @@ impl<'a, R> Parse<'a, R> for Parser<'a, R> {
 ///         } else if &span.left[..hello.len()] == hello {
 ///             Ok((span.incremented(hello.len()), "They really said hello!"))
 ///         } else {
-///             Err(ParseError::new(span.until(hello.len()), ParseErrorKind::Unexpected { found: &span.left[..hello.len()], expected: hello }))
+///             Err(ParseError::new(span.until(hello.len()), ParseErrorKind::Unexpected { found: String::from(&span.left[..hello.len()]), expected: String::from(hello) }))
 ///         }
 ///     }).into_parser()
 /// }
 /// ```
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Span<'a> {
     src_idx: usize,
     src: &'a str,
@@ -206,6 +206,12 @@ impl<'a> Span<'a> {
     pub fn empty() -> Span<'a> {
         Span { left: "", src: "", src_idx: 0 }
     }
+
+    pub fn frozen(&self) -> FrozenSpan {
+        let src = String::from(self.src);
+        let left = String::from(self.left);
+        FrozenSpan { src_idx: self.src_idx, src, left }
+    } 
 } 
 
 impl<'a> Default for Span<'a> {
@@ -218,6 +224,14 @@ impl<'a> Display for Span<'a> {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{}", self.left)
     }
+}
+
+// TODO: Make Span a trait that can be implemented instead of this?
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FrozenSpan {
+    src: String,
+    left: String,
+    src_idx: usize,
 }
 
 pub struct Parser<'a, R> {

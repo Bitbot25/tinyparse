@@ -30,7 +30,7 @@ pub fn literal<'a>(expected: &'static str) -> impl Parse<'a, &'a str> {
             if sub == expected {
                 Ok((span.incremented(expected.len()), sub))
             } else {
-                Err(ParseError::new(span.until(expected.len()), ParseErrorKind::Unexpected { found: sub, expected }))
+                Err(ParseError::new(span.until(expected.len()), ParseErrorKind::Unexpected { found: String::from(sub), expected: String::from(expected) }))
             }
         }
     }

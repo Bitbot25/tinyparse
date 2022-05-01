@@ -1,31 +1,31 @@
 use std::{fmt::Display, error::Error};
-use crate::Span;
+use crate::{Span, FrozenSpan};
 
 #[derive(Debug, PartialEq)]
-pub struct ParseError<'a> {
-    span: Span<'a>,
+pub struct ParseError {
+    span: FrozenSpan,
     //grammar_string: String,
-    kind: ParseErrorKind<'a>,
+    kind: ParseErrorKind,
 }
 
-impl<'a> ParseError<'a> {
-    pub fn new(span: Span<'a>, kind: ParseErrorKind<'a>) -> ParseError<'a> {
-        ParseError { span, kind, /*grammar_string: String::from("<unknown>")*/ }
+impl ParseError {
+    pub fn new<'a>(span: Span<'a>, kind: ParseErrorKind) -> ParseError {
+        ParseError { span: span.frozen(), kind, /*grammar_string: String::from("<unknown>")*/ }
     }
 }
 
-impl<'a> Error for ParseError<'a> {}
+impl Error for ParseError {}
 
 #[derive(Debug, PartialEq)]
-pub enum ParseErrorKind<'a> {
+pub enum ParseErrorKind {
     Starving { found: usize, required: usize },
-    Unexpected { found: &'a str, expected: &'static str },
-    Neither(Vec<ParseError<'a>>),
+    Unexpected { found: String, expected: String },
+    Neither(Vec<ParseError>),
     ConditionFailed,
     Other,
 }
 
-impl<'a> Display for ParseErrorKind<'a> {
+impl Display for ParseErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match &self {
             ParseErrorKind::Starving { found, required } => write!(f, "Found {} units but expected {}.", found, required),
@@ -37,11 +37,11 @@ impl<'a> Display for ParseErrorKind<'a> {
     }
 }
 
-impl<'a> Display for ParseError<'a> {
+impl Display for ParseError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         //write!(f, "(input) -> {}: {}", self.grammar_string, self.kind)
         write!(f, "{}", self.kind)
     }
 }
 
-pub type ParseResult<'a, T> = std::result::Result<(Span<'a>, T), ParseError<'a>>;
+pub type ParseResult<'a, T> = std::result::Result<(Span<'a>, T), ParseError>;
