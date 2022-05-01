@@ -1,4 +1,4 @@
-use std::fmt::Display;
+use std::{fmt::Display, error::Error};
 use crate::Span;
 
 #[derive(Debug, PartialEq)]
@@ -13,6 +13,8 @@ impl<'a> ParseError<'a> {
         ParseError { span, kind, /*grammar_string: String::from("<unknown>")*/ }
     }
 }
+
+impl<'a> Error for ParseError<'a> {}
 
 #[derive(Debug, PartialEq)]
 pub enum ParseErrorKind<'a> {

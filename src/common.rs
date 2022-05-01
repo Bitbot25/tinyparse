@@ -7,8 +7,6 @@ use crate::error::{ParseErrorKind, ParseError};
 /// # Errors
 /// This returns a [ParseErrorKind::Starving] if the required amount of characters (1) was not fulfilled.
 pub fn any_char<'a>() -> impl Parse<'a, char> {
-
-
     move |span: Span<'a>| {
         let c = span.left
             .chars()
@@ -18,6 +16,7 @@ pub fn any_char<'a>() -> impl Parse<'a, char> {
     }
 }
 
+// TODO: Add literal_when() function that takes a predicate for chars. Maybe make it also take a predicate for what's been parsed already, so a &str?
 /// Parses a literal equal to the `expected` parameter.
 /// 
 /// # Errors
