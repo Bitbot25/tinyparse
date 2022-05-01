@@ -7,4 +7,4 @@ authors = ["Verified"]
 license = "GPL-2.0"
 keywords = ["combinator", "parser", "tiny", "simple"]
 repository = "https://github.com/Bitbot25/tinyparse"
-documentation = "https://docs.rs/tinyparse/0.2.2/tinyparse/"
+documentation = "https://docs.rs/tinyparse/0.2.3/tinyparse/"
