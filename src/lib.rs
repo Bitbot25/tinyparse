@@ -22,6 +22,7 @@ impl<'a, R, P: Parse<'a, R> + 'a> IntoParser<'a, R> for P {
 pub trait Parse<'a, R> {
     fn parse(&self, span: Span<'a>) -> ParseResult<'a, R>;
 
+    /// Maps the result of this parser to another value.
     fn map<F, M>(self, map_fn: F) -> Parser<'a, M>
     where
         F: Fn(R) -> M + 'a,
@@ -32,6 +33,20 @@ pub trait Parse<'a, R> {
         }).into_parser()
     }
 
+    /// Runs the next parser but returns the result of this one. Essentially skipping the result of the `other_parser`.
+    fn skip<P, R2>(self, other_parser: P) -> Parser<'a, R>
+    where
+        P: Parse<'a, R2> + 'a,
+        Self: Sized + 'a,
+    {
+        (move |span| {
+            let (span, result) = self.parse(span)?;
+            let (span, _) = other_parser.parse(span)?;
+            Ok((span, result))
+        }).into_parser()
+    }
+
+    /// Maps the error of this parser to another error. (Only if there was one)
     fn map_error<F>(self, map_fn: F) -> Parser<'a, R>
     where
         F: Fn(ParseError) -> ParseError + 'a,
@@ -43,6 +58,7 @@ pub trait Parse<'a, R> {
         }).into_parser()
     }
 
+    /// Verifies the result of this parser. If the predicate failed; a [ParseErrorKind::ConditionFailed] error is returned.
     fn only_if<F>(self, pred: F) -> Parser<'a, R>
     where
         F: Fn(&R) -> bool + 'a,
@@ -58,6 +74,7 @@ pub trait Parse<'a, R> {
         }).into_parser()
     }
 
+    /// If this parser fails, use the `val` as a result instead.
     fn or_value(self, val: R) -> Parser<'a, R>
     where
         Self: Sized + 'a,
@@ -68,6 +85,7 @@ pub trait Parse<'a, R> {
         }).into_parser()
     }
 
+    /// Same as [Parse::or_value] but it computes the value from a Fn.
     fn or_else_value<F>(self, compute: F) -> Parser<'a, R>
     where
         Self: Sized + 'a,
@@ -154,7 +172,6 @@ impl<'a, R> Parse<'a, R> for Parser<'a, R> {
 
 /// A container for the actual data we are parsing.
 /// 
-/// **Note: This struct is only commonly used for calling the [Parse::parse] function. The usage below can be recreated with the provided parsers already.**
 /// 
 /// # Usage
 /// 
@@ -175,6 +192,7 @@ impl<'a, R> Parse<'a, R> for Parser<'a, R> {
 ///     }).into_parser()
 /// }
 /// ```
+/// ## Note: This struct is only commonly used for calling the [Parse::parse] function. The usage above can be recreated with the provided parsers already.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Span<'a> {
     src_idx: usize,
@@ -227,6 +245,7 @@ impl<'a> Display for Span<'a> {
 }
 
 // TODO: Make Span a trait that can be implemented instead of this?
+/// A snapshot of a Span which was returned in an error.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct FrozenSpan {
     src: String,
@@ -234,6 +253,7 @@ pub struct FrozenSpan {
     src_idx: usize,
 }
 
+/// A boxed version of the [Parse] trait.
 pub struct Parser<'a, R> {
     parser: Box<dyn Parse<'a, R> + 'a>,
 }
