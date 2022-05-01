@@ -1,6 +1,8 @@
 use crate::{Parse, Span, Parser};
 use crate::error::{ParseErrorKind, ParseError};
 
+// TODO: Remove impl Parse and replace it with Parser
+
 // Note: This is impl Parse because the type can be inferred at compile time. If the type is unknown; you should use the Parser struct. Not Box<dyn Parser>
 /// Parses any UTF-8 character.
 /// 
@@ -43,7 +45,7 @@ pub fn literal<'a>(expected: &'static str) -> impl Parse<'a, &'a str> {
 /// Same as [Parse::or]
 pub fn one_of<'a, R: 'a, const N: usize>(parsers: [Parser<'a, R>; N]) -> impl Parse<'a, R> {
     move |span: Span<'a>| {
-        let mut errors = Vec::with_capacity(N);
+        let mut errors = Vec::with_capacity(N / 2);
         for parser in parsers.iter() {
             match parser.parse(span) {
                 ok @ Ok(_) => return ok,
@@ -52,6 +54,23 @@ pub fn one_of<'a, R: 'a, const N: usize>(parsers: [Parser<'a, R>; N]) -> impl Pa
         }
 
         Err(ParseError::new(span, ParseErrorKind::Neither(errors)))
+    }
+}
+
+/// An alternative to chaining multiple [Parse::and] calls. One benefit is that all the results will be returned in one [Vec], instead of each returning two results.
+/// The intention may also be more  clear.
+/// 
+/// # Errors
+/// Any of errors from the parameter `parsers`.
+pub fn seq<'a, R: 'a, const N: usize>(parsers: [Parser<'a, R>; N]) -> impl Parse<'a, Vec<R>> {
+    move |mut span: Span<'a>| {
+        let mut results = Vec::with_capacity(N);
+        for parser in parsers.iter() {
+            let (new_span, res) = parser.parse(span)?;
+            results.push(res);
+            span = new_span;
+        }
+        Ok((span, results))
     }
 }
 
