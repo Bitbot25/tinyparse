@@ -42,7 +42,7 @@ pub fn literal<'a>(expected: &'static str) -> impl Parse<'a, &'a str> {
 /// 
 /// # Errors
 /// Same as [Parse::or]
-pub fn one_of<'a, const N: usize, R: 'a>(parsers: [Parser<'a, R>; N]) -> impl Parse<'a, R> {
+pub fn one_of<'a, R: 'a, const N: usize>(parsers: [Parser<'a, R>; N]) -> impl Parse<'a, R> {
     move |span: Span<'a>| {
         let mut errors = Vec::with_capacity(N);
         for parser in parsers.iter() {
