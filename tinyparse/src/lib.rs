@@ -1,6 +1,7 @@
 pub mod error;
-pub mod grammar;
 pub mod common;
+
+pub use tinyparse_macro::seq;
 
 use error::{ParseError, ParseResult, ParseErrorKind};
 use std::fmt::Display;
@@ -283,15 +284,27 @@ mod tests {
     }
 
     #[test]
+    fn it_parses_seq() {
+        assert_parses(seq!(literal("a"), literal("b"), literal("c")), "abc", ("a", "b", "c"));
+        assert_not_parses(seq!(identifier(), literal("("), literal(")")), "asd");
+    }
+
+    #[test]
     fn it_parses_numbers() {
         assert_parses(uint(), "200", 200);
         assert_not_parses(uint(), "not a number");
         assert_parses(int(), "-5", -5);
         assert_parses(int(), "5", 5);
         assert_parses(int(), "+5", 5);
-        assert_not_parses(int(), "not a number");
         assert_not_parses(int(), "+not a number");
         assert_not_parses(int(), "-not a number");
+        // println!("{:?}", __t_seq_impl(literal("hello"), literal("bye")).parse(Span::new("hellobye")))
+    }
+
+    #[test]
+    fn it_parses_identifiers() {
+        assert_parses(identifier(), "hello", "hello");
+        assert_not_parses(identifier(), "5");
     }
 
     #[test]

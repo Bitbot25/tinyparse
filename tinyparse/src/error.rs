@@ -22,7 +22,7 @@ pub enum ParseErrorKind {
     Unexpected { found: String, expected: String },
     Neither(Vec<ParseError>),
     ConditionFailed,
-    Other,
+    Other(String),
 }
 
 impl Display for ParseErrorKind {
@@ -32,7 +32,7 @@ impl Display for ParseErrorKind {
             ParseErrorKind::Unexpected { found, expected } => write!(f, "Unexpected: '{}', Expected: '{}'", found, expected),
             ParseErrorKind::Neither(errors) => write!(f, "Neither parser succeeded: {:?}", errors),
             ParseErrorKind::ConditionFailed => write!(f, "Condition failed."),
-            ParseErrorKind::Other => write!(f, "Unknown error.")
+            ParseErrorKind::Other(details) => write!(f, "{}", details),
         }
     }
 }

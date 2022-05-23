@@ -1,5 +1,6 @@
 use crate::{Parse, Span, Parser};
 use crate::error::{ParseErrorKind, ParseError};
+use unicode_xid::UnicodeXID;
 
 // TODO: Remove impl Parse and replace it with Parser
 
@@ -18,7 +19,6 @@ pub fn any_char<'a>() -> impl Parse<'a, char> {
     }
 }
 
-// TODO: Add literal_when() function that takes a predicate for chars. Maybe make it also take a predicate for what's been parsed already, so a &str?
 /// Parses a literal equal to the `expected` parameter.
 /// 
 /// # Errors
@@ -34,6 +34,29 @@ pub fn literal<'a>(expected: &'static str) -> impl Parse<'a, &'a str> {
             } else {
                 Err(ParseError::new(span.until(expected.len()), ParseErrorKind::Unexpected { found: String::from(sub), expected: String::from(expected) }))
             }
+        }
+    }
+}
+
+pub fn identifier<'a>() -> impl Parse<'a, &'a str> {
+    fn err<'a>(span: Span<'a>) -> ParseError {
+        ParseError::new(span, ParseErrorKind::Other("Expected unicode xid start character.".to_string()))
+    }
+    move |span: Span<'a>| {
+        let mut chars = span.left.chars();
+        let first_c = chars.next().ok_or_else(|| err(span))?;
+        if UnicodeXID::is_xid_start(first_c) {
+            let mut index = 1;
+            while unsafe {
+                let c = chars.next();
+                c.is_some() && UnicodeXID::is_xid_continue(c.unwrap_unchecked())
+            } {
+                index += 1;
+            }
+
+            Ok((span.incremented(index), &span.left[..index]))
+        } else {
+            Err(err(span))
         }
     }
 }
@@ -62,7 +85,7 @@ pub fn one_of<'a, R: 'a, const N: usize>(parsers: [Parser<'a, R>; N]) -> impl Pa
 /// 
 /// # Errors
 /// Any of errors from the parameter `parsers`.
-pub fn seq<'a, R: 'a, const N: usize>(parsers: [Parser<'a, R>; N]) -> impl Parse<'a, Vec<R>> {
+pub fn all<'a, R: 'a, const N: usize>(parsers: [Parser<'a, R>; N]) -> impl Parse<'a, Vec<R>> {
     move |mut span: Span<'a>| {
         let mut results = Vec::with_capacity(N);
         for parser in parsers.iter() {
