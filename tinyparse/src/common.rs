@@ -39,7 +39,7 @@ pub fn literal<'a>(expected: &'static str) -> impl Parse<'a, &'a str> {
 }
 
 pub fn identifier<'a>() -> impl Parse<'a, &'a str> {
-    fn err<'a>(span: Span<'a>) -> ParseError {
+    fn err(span: Span) -> ParseError {
         ParseError::new(span, ParseErrorKind::Other("Expected unicode xid start character.".to_string()))
     }
     move |span: Span<'a>| {
@@ -47,9 +47,9 @@ pub fn identifier<'a>() -> impl Parse<'a, &'a str> {
         let first_c = chars.next().ok_or_else(|| err(span))?;
         if UnicodeXID::is_xid_start(first_c) {
             let mut index = 1;
-            while unsafe {
+            while {
                 let c = chars.next();
-                c.is_some() && UnicodeXID::is_xid_continue(c.unwrap_unchecked())
+                c.is_some() && UnicodeXID::is_xid_continue(c.unwrap())
             } {
                 index += 1;
             }

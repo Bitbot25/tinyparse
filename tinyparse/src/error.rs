@@ -9,7 +9,7 @@ pub struct ParseError {
 }
 
 impl ParseError {
-    pub fn new<'a>(span: Span<'a>, kind: ParseErrorKind) -> ParseError {
+    pub fn new(span: Span, kind: ParseErrorKind) -> ParseError {
         ParseError { span: span.frozen(), kind, /*grammar_string: String::from("<unknown>")*/ }
     }
 }

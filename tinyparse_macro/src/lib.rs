@@ -1,4 +1,4 @@
-use syn::{Expr, parse::Parse, punctuated::Punctuated, Token, parse_macro_input, Generics, GenericParam, parse_quote, spanned::Spanned, TypeParam};
+use syn::{Expr, parse::Parse, punctuated::Punctuated, Token, parse_macro_input, Generics, GenericParam, parse_quote, spanned::Spanned};
 use quote::{quote, quote_spanned, format_ident};
 
 struct Args {
@@ -14,6 +14,7 @@ impl Parse for Args {
     }
 }
 
+/// Constructs a new parsers that runs the specified parsers in order. The result is then returned in a tuple. This is similar to the `all` method in the tinyparse `common` module.
 #[proc_macro]
 pub fn seq(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     let args = parse_macro_input!(input as Args);

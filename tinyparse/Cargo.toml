@@ -1,13 +1,13 @@
 [package]
 name = "tinyparse"
-version = "0.2.3"
+version = "1.2.3-alpha"
 edition = "2021"
 description = "A tiny combinator parser library."
 authors = ["Verified"]
 license = "GPL-2.0"
 keywords = ["combinator", "parser", "tiny", "simple"]
 repository = "https://github.com/Bitbot25/tinyparse"
-documentation = "https://docs.rs/tinyparse/0.2.3/tinyparse/"
+documentation = "https://docs.rs/tinyparse/1.2.3-alpha/tinyparse/"
 
 [dependencies]
 tinyparse_macro = { path = "../tinyparse_macro" }
