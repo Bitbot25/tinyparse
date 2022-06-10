@@ -1,6 +1,6 @@
 [package]
 name = "tinyparse_macro"
-version = "1.2.3-alpha"
+version = "0.3.3"
 edition = "2021"
 description = "Macros for tinyparse"
 license = "MIT"
@@ -9,6 +9,6 @@ license = "MIT"
 proc-macro = true
 
 [dependencies]
-syn = "1.0"
+syn = { version = "1.0", features = ["full"] }
 quote = "1.0"
 proc-macro2 = "1.0.39"

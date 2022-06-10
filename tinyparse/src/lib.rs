@@ -194,6 +194,7 @@ impl<'a, R> Parse<'a, R> for Parser<'a, R> {
 /// }
 /// ```
 /// ## Note: This struct is only commonly used for calling the [Parse::parse] function. The usage above can be recreated with the provided parsers already.
+// TODO: Make this be able to contain Tokens aswell as characters.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Span<'a> {
     src_idx: usize,

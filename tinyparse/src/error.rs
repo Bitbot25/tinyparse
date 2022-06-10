@@ -1,6 +1,8 @@
 use std::{fmt::Display, error::Error};
 use crate::{Span, FrozenSpan};
 
+// TODO: Change ParseErrorKind to be smaller and add an details: Option<String> to the ParseError struct. The method Parse::label(&str) will then add details to the error message. (Name the parser)
+
 #[derive(Debug, PartialEq)]
 pub struct ParseError {
     span: FrozenSpan,
